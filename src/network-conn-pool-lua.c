@@ -203,8 +203,59 @@ network_socket *self_connect(network_mysqld_con *con, network_backend_t *backend
 	off_t to_write = 58 + con->client->response->username->len;
 	offset = 0;
 	g_string_truncate(data, 0);
+    gchar* charset[]={"big5","latin1","gb2312","gbk","utf8","binary"};
+    guint index=0;
 	char tmp[] = {to_write - 4, 0, 0, 1, 0x85, 0xa6, 3, 0, 0, 0, 0, 1, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-	g_string_append_len(data, tmp, 36);
+    for(index=0;index<sizeof(charset)/sizeof(gchar*);index++)
+        if(strcasecmp(con->config->charset,charset[index])==0)
+            break;
+    switch(index)
+    {
+      case 0:
+        tmp[12]='\x1';//big5
+        g_string_assign(sock->charset_client,"big5");
+        g_string_assign(sock->charset_connection,"big5");
+        g_string_assign(sock->charset_results,"big5");
+        break;
+      case 1:
+        tmp[12]='\x8';//latin1
+        g_string_assign(sock->charset_client,"latin1");
+        g_string_assign(sock->charset_connection,"latin1");
+        g_string_assign(sock->charset_results,"latin1");
+        break;
+      case 2:
+        tmp[12]='\x18';//gb2312
+        g_string_assign(sock->charset_client,"gb2312");
+        g_string_assign(sock->charset_connection,"gb2312");
+        g_string_assign(sock->charset_results,"gb2312");
+        break;
+      case 3:
+        tmp[12]='\x1c';//gbk
+        g_string_assign(sock->charset_client,"gbk");
+        g_string_assign(sock->charset_connection,"gbk");
+        g_string_assign(sock->charset_results,"gbk");
+        break;
+      case 4:
+        tmp[12]='\x21';//utf8
+        g_string_assign(sock->charset_client,"utf8");
+        g_string_assign(sock->charset_connection,"utf8");
+        g_string_assign(sock->charset_results,"utf8");
+        break;
+      case 5:
+        tmp[12]='\x3f';//binary
+        g_string_assign(sock->charset_client,"binary");
+        g_string_assign(sock->charset_connection,"binary");
+        g_string_assign(sock->charset_results,"binary");
+        break;
+      default:
+        tmp[12]='\x8';//latin1
+        g_string_assign(sock->charset_client,"latin1");
+        g_string_assign(sock->charset_connection,"latin1");
+        g_string_assign(sock->charset_results,"latin1");
+        break;
+    }
+
+    g_string_append_len(data, tmp, 36);
 	g_string_append_len(data, con->client->response->username->str, con->client->response->username->len);
 	g_string_append_len(data, "\0\x14", 2);
 	g_string_append_len(data, response->str, 20);

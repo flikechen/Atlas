@@ -910,8 +910,16 @@ NETWORK_MYSQLD_PLUGIN_PROTO(proxy_read_auth) {
 		network_mysqld_proto_password_scramble(expected_response, S(con->challenge), S(hashed_password));
 		if (g_string_equal(expected_response, auth->response)) {
 			g_string_assign_len(recv_sock->default_db, S(auth->database));
-
-			char *client_charset = charset[auth->charset];
+            
+            gchar* client_charset=NULL;
+            //con->config->charset在未赋值时，是NULL 
+            if(con->config->charset!=NULL)
+                client_charset=con->config->charset;
+            else
+            {
+                client_charset=charset[auth->charset];
+                con->config->charset=charset[auth->charset];
+            }
 			g_string_assign(recv_sock->charset_client,     client_charset);
 			g_string_assign(recv_sock->charset_results,    client_charset);
 			g_string_assign(recv_sock->charset_connection, client_charset);
@@ -2535,7 +2543,7 @@ int network_mysqld_proxy_plugin_apply_config(chassis *chas, chassis_plugin_confi
 		}
 	}
 
-	if (!config->charset) config->charset = g_strdup("LATIN1");
+	//if (!config->charset) config->charset = g_strdup("LATIN1");
 
 	/* load the script and setup the global tables */
 	network_mysqld_lua_setup_global(chas->priv->sc->L, g, chas);
