@@ -428,16 +428,32 @@ int main_cmdline(int argc, char **argv) {
 	}
 	chassis_resolve_path(srv->base_dir, &frontend->log_path);
 	chassis_resolve_path(srv->base_dir, &frontend->plugin_dir);
-
+    
+    if (! frontend->instance_name) 
+    {
+        gchar *last_p=NULL,*cp=NULL;
+        gchar **t=NULL;
+        //last_p="/test.cnf"
+        last_p=g_strrstr(frontend->default_file,"/");
+        if(last_p==NULL)
+        {
+            g_critical("%s: Failed to get defaults_file name, please set by --defaults_file", G_STRLOC);
+            GOTO_EXIT(EXIT_FAILURE);
+        }
+        else
+        {
+            cp=g_strdup(last_p+1);
+            //cp="test.cnf"
+            t=g_strsplit(cp,".",2);
+            frontend->instance_name=g_strdup(*t);
+            g_strfreev(t);
+            g_free(cp);
+        }
+      }
 	/*
 	 * start the logging and pid
 	 */
 	if (frontend->log_path) {
-        if (! frontend->instance_name) {
-            g_critical("%s: Failed to get instance name, please set by --instance",
-                    G_STRLOC);
-            GOTO_EXIT(EXIT_FAILURE);
-        }
         log->log_filename = g_strdup_printf("%s/%s.log", frontend->log_path, frontend->instance_name);
         frontend->pid_file = g_strdup_printf("%s/%s.pid", frontend->log_path, frontend->instance_name);
 	    srv->log_path = g_strdup(frontend->log_path);
