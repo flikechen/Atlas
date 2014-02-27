@@ -236,7 +236,8 @@ typedef struct {
 	guint sub_sql_num;
 	guint sub_sql_exed;
 	GPtrArray* rows;
-	int limit;
+	guint affect_row_count;
+    int limit;
 } merge_res_t;
 
 /**
