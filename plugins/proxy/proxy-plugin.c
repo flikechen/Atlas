@@ -311,22 +311,22 @@ GArray* get_column_index(GPtrArray* tokens, gchar* table_name, gchar* column_nam
 			if (ts[i]->token_id == TK_SQL_WHERE) {
 				for (j = i+1; j < len-2; ++j) {
 					if (ts[j]->token_id == TK_LITERAL && strcmp(ts[j]->text->str, column_name) == 0 ) {
-				    	if (ts[j+1]->token_id == TK_EQ) {
-						if (ts[j-1]->token_id != TK_DOT || strcmp(ts[j-2]->text->str, table_name) == 0) {
-					    	k = j + 2;
-					    	g_array_append_val(columns, k);
-					    	break;
-						}
-                            		} else if (j + 3 < len && strcasecmp(ts[j+1]->text->str, "IN") == 0 && ts[j+2]->token_id == TK_OBRACE) {
-                                    		k = j + 3;
-                                    		g_array_append_val(columns, k);
-                                    		while ((k += 2) < len && ts[k-1]->token_id != TK_CBRACE) {
-                                        		g_array_append_val(columns, k);
-                                    		}
-                            		}
-                         	    }
-			       }
-		      	       break;
+				    		if (ts[j+1]->token_id == TK_EQ) {
+							if (ts[j-1]->token_id != TK_DOT || strcmp(ts[j-2]->text->str, table_name) == 0) {
+						    		k = j + 2;
+						    		g_array_append_val(columns, k);
+						    		break;
+							}
+                            			} else if (j + 3 < len && strcasecmp(ts[j+1]->text->str, "IN") == 0 && ts[j+2]->token_id == TK_OBRACE) {
+                                    			k = j + 3;
+                                    			g_array_append_val(columns, k);
+                                    			while ((k += 2) < len && ts[k-1]->token_id != TK_CBRACE) {
+                                        			g_array_append_val(columns, k);
+                                    			}
+                            			}
+                         		}
+				}
+		      		break;
             		}
        		}
 	} else if (sql_type == 3) {
