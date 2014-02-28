@@ -928,15 +928,14 @@ NETWORK_MYSQLD_PLUGIN_PROTO(proxy_read_auth) {
 		if (g_string_equal(expected_response, auth->response)) {
 			g_string_assign_len(recv_sock->default_db, S(auth->database));
             
-            gchar* client_charset=NULL;
-            //con->config->charset在未赋值时，是NULL 
-            if(con->config->charset!=NULL)
-                client_charset=con->config->charset;
-            else
-            {
-                client_charset=charset[auth->charset];
-                con->config->charset=charset[auth->charset];
-            }
+		   	gchar* client_charset=NULL;
+		   	//con->config->charset在未赋值时，是NULL 
+		   	if(con->config->charset!=NULL)
+				client_charset=con->config->charset;
+		    	else {
+				client_charset=charset[auth->charset];
+				con->config->charset=charset[auth->charset];
+		    	}
 			g_string_assign(recv_sock->charset_client,     client_charset);
 			g_string_assign(recv_sock->charset_results,    client_charset);
 			g_string_assign(recv_sock->charset_connection, client_charset);
